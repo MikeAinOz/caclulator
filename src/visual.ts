@@ -37,7 +37,7 @@ import DataView = powerbi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
 
 import { VisualSettings } from "./settings";
-import { calculator } from "./calculator"
+import { Calculator } from "./calculator"
 export class Visual implements IVisual {
     private target: HTMLElement;
     private updateCount: number;
@@ -45,14 +45,14 @@ export class Visual implements IVisual {
     private textNode: Text;
     private input: HTMLInputElement;
     private answer: HTMLInputElement;
-    private calculator: calculator
+    private calculator: Calculator
 
     constructor(options: VisualConstructorOptions) {
         console.log('Visual constructor', options);
         this.target = options.element;
         this.updateCount = 0;
         if (document) {
-            let encodedHTML = "IDxkaXYgaWQ9ImNhbGN1bGF0b3IiIGFsaWduPSJjZW50ZXIiPgoKICAgICAgICA8ZGl2PgogICAgICAgICAgICA8aW5wdXQgaWQ9InNjcmVlbiIgdmFsdWU9IjAiPjxicj4KICAgICAgICAgICAgUmVzdWx0OiA8aW5wdXQgaWQ9ImFuc3dlciIgcmVhZG9ubHkgdmFsdWU9IjAiPjxicj4KICAgICAgICA8L2Rpdj4KCiAgICAgICAgPGRpdj4KICAgICAgICAgICAgPGJ1dHRvbj4xPC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24+MjwvYnV0dG9uPgogICAgICAgICAgICA8YnV0dG9uPjM8L2J1dHRvbj4KICAgICAgICAgICAgPGJ1dHRvbiBjbGFzcz0ib3BlcmF0b3IiPis8L2J1dHRvbj4KICAgICAgICA8L2Rpdj4KCiAgICAgICAgPGRpdj4KICAgICAgICAgICAgPGJ1dHRvbj40PC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24+NTwvYnV0dG9uPgogICAgICAgICAgICA8YnV0dG9uPjY8L2J1dHRvbj4KICAgICAgICAgICAgPGJ1dHRvbiBjbGFzcz0ib3BlcmF0b3IiPi08L2J1dHRvbj4KICAgICAgICA8L2Rpdj4KCiAgICAgICAgPGRpdj4KICAgICAgICAgICAgPGJ1dHRvbj43PC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24+ODwvYnV0dG9uPgogICAgICAgICAgICA8YnV0dG9uPjk8L2J1dHRvbj4KICAgICAgICAgICAgPGJ1dHRvbiBjbGFzcz0ib3BlcmF0b3IiPi88L2J1dHRvbj4KICAgICAgICA8L2Rpdj4KCiAgICAgICAgPGRpdj4KICAgICAgICAgICAgPGJ1dHRvbj4wPC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24+LjwvYnV0dG9uPgogICAgICAgICAgICA8YnV0dG9uPiU8L2J1dHRvbj4KICAgICAgICAgICAgPGJ1dHRvbiBjbGFzcz0ib3BlcmF0b3IiPng8L2J1dHRvbj4KICAgICAgICA8L2Rpdj4KCiAgICAgICAgPGRpdj4KICAgICAgICAgICAgPGJ1dHRvbj4wMDwvYnV0dG9uPgogICAgICAgICAgICA8YnV0dG9uPig8L2J1dHRvbj4KICAgICAgICAgICAgPGJ1dHRvbj4pPC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24gY2xhc3M9Im9wZXJhdG9yIj5ePC9idXR0b24+CiAgICAgICAgPC9kaXY+CgogICAgICAgIDxkaXY+CiAgICAgICAgICAgIDxidXR0b24gY2xhc3M9InJlc2V0Ij5DPC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24gY2xhc3M9ImV2YWwiPj08L2J1dHRvbj4KICAgICAgICA8L2Rpdj4KCiAgICA8L2Rpdj4gICAg";
+            let encodedHTML = "PCFET0NUWVBFIGh0bWw+CjxodG1sPgo8aGVhZD4KICAgIDx0aXRsZT5DYWxjdWxhdG9yPC90aXRsZT4KICAgCjwvaGVhZD4KPGJvZHk+CgogICAgPGRpdiBpZD0iY2FsY3VsYXRvciIgYWxpZ249ImNlbnRlciI+CgogICAgICAgIDxkaXY+CiAgICAgICAgICAgIDxpbnB1dCBpZD0ic2NyZWVuIiB2YWx1ZT0iMCI+PGJyPgogICAgICAgICAgICBSZXN1bHQ6IDxpbnB1dCBpZD0iYW5zd2VyIiByZWFkb25seSB2YWx1ZT0iMCI+PGJyPgogICAgICAgIDwvZGl2PgoKICAgICAgICA8ZGl2PgogICAgICAgICAgICA8YnV0dG9uPjE8L2J1dHRvbj4KICAgICAgICAgICAgPGJ1dHRvbj4yPC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24+MzwvYnV0dG9uPgogICAgICAgICAgICA8YnV0dG9uIGNsYXNzPSJvcGVyYXRvciI+KzwvYnV0dG9uPgogICAgICAgIDwvZGl2PgoKICAgICAgICA8ZGl2PgogICAgICAgICAgICA8YnV0dG9uPjQ8L2J1dHRvbj4KICAgICAgICAgICAgPGJ1dHRvbj41PC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24+NjwvYnV0dG9uPgogICAgICAgICAgICA8YnV0dG9uIGNsYXNzPSJvcGVyYXRvciI+LTwvYnV0dG9uPgogICAgICAgIDwvZGl2PgoKICAgICAgICA8ZGl2PgogICAgICAgICAgICA8YnV0dG9uPjc8L2J1dHRvbj4KICAgICAgICAgICAgPGJ1dHRvbj44PC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24+OTwvYnV0dG9uPgogICAgICAgICAgICA8YnV0dG9uIGNsYXNzPSJvcGVyYXRvciI+LzwvYnV0dG9uPgogICAgICAgIDwvZGl2PgoKICAgICAgICA8ZGl2PgogICAgICAgICAgICA8YnV0dG9uPjA8L2J1dHRvbj4KICAgICAgICAgICAgPGJ1dHRvbj4uPC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24+JTwvYnV0dG9uPgogICAgICAgICAgICA8YnV0dG9uIGNsYXNzPSJvcGVyYXRvciI+KjwvYnV0dG9uPgogICAgICAgIDwvZGl2PgoKICAgICAgICA8ZGl2PgogICAgICAgICAgICA8YnV0dG9uPjAwPC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24+KDwvYnV0dG9uPgogICAgICAgICAgICA8YnV0dG9uPik8L2J1dHRvbj4KICAgICAgICAgICAgPGJ1dHRvbiBjbGFzcz0ib3BlcmF0b3IiPl48L2J1dHRvbj4KICAgICAgICA8L2Rpdj4KCiAgICAgICAgPGRpdj4KICAgICAgICAgICAgPGJ1dHRvbiBjbGFzcz0icmVzZXQiPkM8L2J1dHRvbj4KICAgICAgICAgICAgPGJ1dHRvbiBjbGFzcz0iZXZhbCI+PTwvYnV0dG9uPgogICAgICAgIDwvZGl2PgoKICAgIDwvZGl2PiAgICAKPC9ib2R5Pgo8L2h0bWw+";
             let new_div: HTMLElement = document.createElement('div');
             new_div.innerHTML = atob(encodedHTML);
             this.target.appendChild(new_div);
@@ -60,8 +60,7 @@ export class Visual implements IVisual {
             var inputs = document.getElementsByTagName('input');
             this.input = inputs.item(0);
             this.answer = inputs.item(1);
-            this.calculator = new calculator(this.input,this.answer);
-            this.answer.value = buttons.length.toString();
+            this.calculator = new Calculator(this.input,this.answer);
             for (let i = 0; i < buttons.length; i++) {
                 let button = buttons[i];
                 button.addEventListener("click", () => {
@@ -69,6 +68,7 @@ export class Visual implements IVisual {
                     //this.input.value = this.calculator.input.value
                 })
             }
+            /*
             const new_p: HTMLElement = document.createElement("p");
             new_p.appendChild(document.createTextNode("Button Count :"));
             const new_em: HTMLElement = document.createElement("em");
@@ -80,6 +80,7 @@ export class Visual implements IVisual {
             const new_p1: HTMLElement = document.createElement("p");
             new_p1.textContent = buttons.item(4).innerText;
             this.target.appendChild(new_p1);
+            */
         }
     }
 

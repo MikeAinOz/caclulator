@@ -1,13 +1,17 @@
-export class calculator {
+import Mexp from "math-expression-evaluator";
+
+export class Calculator {
   public input: HTMLInputElement;
   public answer: HTMLInputElement;
-  public operator: Array<string> = ['+', '-', 'x', '/'];
+  public operator: Array<string> = ['+', '-', '*', '/','^'];
   public decimalAdded: boolean = false;
-
+ 
   constructor(input: HTMLInputElement, answer: HTMLInputElement) {
     this.input = input;
     this.answer = answer;
   }
+
+
   processButton(button: HTMLButtonElement) {
     switch (true) {
       case button.textContent === 'C':
@@ -19,34 +23,71 @@ export class calculator {
       case (this.operator.indexOf(button.textContent) > -1):
         this.processOperatorButton(button.textContent);
         break;
+      case button.textContent === '.':
+        this.processDecimalButton(button.textContent);
+        break;
+      case button.textContent === '%':
+        this.processPercentageButton(button.textContent);
+        break;
+      case (button.textContent === '(' || button.textContent === ')'):
+        this.processParenthesesButton(button.textContent);
+        break;
+      case (button.textContent === '='):
+      //  this.answer.value = this.valuator.evaluate(this.input.value).toString();
+        this.answer.value = Mexp.eval(this.input.value)
+        break;
     }
   }
-  processOperatorButton(btnValue)
-        {
-            var inputVal = this.input.value;
-            var lastChar = inputVal.substring(inputVal.length - 1);
-            var btnVal = btnValue;
 
-            if(inputVal!='' && this.operator.indexOf(lastChar) == -1)
-            {
-                this.input.value += " " + btnVal + " ";
-            }
-            else if(inputVal == '' && btnVal == '-')
-            {
-                this.input.value += " " + btnVal + " ";
-            }
+  processParenthesesButton(btnValue) {
+    if (this.input.value == '0')
+      this.input.value = "";
 
-            if(this.operator.indexOf(lastChar) > -1 && inputVal.length > 1)
-            {
-                //input.value.replace(/.$/, btnVal);
-                this.input.value = inputVal.substring(0, inputVal.length - 1) + btnVal;
-            }
+    var btnVal = btnValue;
 
-            this.decimalAdded = false;
+    if (btnVal == '(')
+      this.input.value += btnVal + " ";
+    else
+      this.input.value += " " + btnVal;
 
-        }
+    this.decimalAdded = false;
+  }
 
+  processPercentageButton(btnValue) {
+    var inputVal = this.input.value;
+    var btnVal = btnValue;
 
+    if (inputVal != '' && inputVal.indexOf('-') == -1 && inputVal.indexOf('+') == -1
+      && inputVal.indexOf('/') == -1 && inputVal.indexOf('x') == -1 && inputVal.indexOf('^') == -1
+      && inputVal.indexOf('(') == -1 && inputVal.indexOf(')') == -1
+      && inputVal.indexOf('%') == -1) {
+      this.input.value += btnVal;
+    }
+  }
+  processDecimalButton(btnValue) {
+    var btnVal = btnValue;
+
+    if (!this.decimalAdded) {
+      this.input.value += btnVal;
+      this.decimalAdded = true;
+    }
+  }
+  processOperatorButton(btnValue) {
+    var inputVal = this.input.value;
+    var lastChar = inputVal.substring(inputVal.length - 1);
+    var btnVal = btnValue;
+
+    if (inputVal != '' && this.operator.indexOf(lastChar) == -1) {
+      this.input.value += " " + btnVal + " ";
+    }
+    else if (inputVal == '' && btnVal == '-') {
+      this.input.value += " " + btnVal + " ";
+    }
+    if (this.operator.indexOf(lastChar) > -1 && inputVal.length > 1) {
+      this.input.value = inputVal.substring(0, inputVal.length - 1) + btnVal;
+    }
+    this.decimalAdded = false;
+  }
   processResetButton() {
     this.input.value = "0";
     this.answer.value = "0";
@@ -60,64 +101,5 @@ export class calculator {
     this.input.value += btnVal;
     //decimalAdded = false;
 
-  }
-
-}
-
-// https://dev.to/macmacky/implement-a-stack-with-typescript-4e09
-interface StackNode<T> {
-  value: T | null
-  next: StackNode<T> | null
-}
-
-class StackNode<T> implements StackNode<T> {
-  constructor(val: T) {
-    this.value = val
-    this.next = null
-  }
-}
-
-interface Stack<T> {
-  size: number
-  top: StackNode<T> | null
-  bottom: StackNode<T> | null
-  push(val: T): number
-  pop(): StackNode<T> | null
-}
-
-
-
-class Stack<T = string> implements Stack<T> {
-  constructor() {
-    this.size = 0
-    this.top = null
-    this.bottom = null
-  }
-
-  push(val: T) {
-    const node = new StackNode(val)
-    if (this.size === 0) {
-      this.top = node
-      this.bottom = node
-    } else {
-      const currentTop = this.top
-      this.top = node
-      this.top.next = currentTop
-    }
-
-    this.size += 1
-    return this.size
-  }
-
-
-  pop(): StackNode<T> | null {
-    if (this.size > 0) {
-      const nodeToBeRemove = this.top as StackNode<T>
-      this.top = nodeToBeRemove.next
-      this.size -= 1
-      nodeToBeRemove.next = null
-      return nodeToBeRemove
-    }
-    return null
-  }
+  }        
 }
